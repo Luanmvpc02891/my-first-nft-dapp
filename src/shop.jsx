@@ -50,7 +50,7 @@ const Shop = () => {
                 const accountInfo = await connection.getAccountInfo(new PublicKey(wallet.address), "confirmed");
                 console.log(accountInfo);
                 setConnStatus(true);
-                getNFTsFromMarketPlace();
+                getNFTsFromMarketPlace(isLoadedMarketPlaceNFTs);
             }
         }
         catch (err) {
@@ -59,9 +59,8 @@ const Shop = () => {
 
     }
 
-    const getNFTsFromMarketPlace = (e) => {
-        e.preventDefault
-
+    const getNFTsFromMarketPlace = () => {
+       
         const marketplaceAddress = "3y4rUzcCRZH4TstRJGYmUUKuod8hd4Rvu2Fnf2FhQoY4";
 
         let nftUrl = `https://api.shyft.to/sol/v1/marketplace/active_listings?network=devnet&marketplace_address=${marketplaceAddress}`;
@@ -87,48 +86,12 @@ const Shop = () => {
                     //setMssg("Some Error Occured");
                     setNfts([]);
                 }
-                //setIsLoadedMarketPlaceNFTs(true);
-                //ReactSession.set("nfts", res.data.result);
-                //setLoaded(true);
             })
-            // Catch errors if any
-            .catch((err) => {
-                console.warn(err);
-                //setNfts([]);
-                //setIsLoadedMarketPlaceNFTs(true);
-            });
-    }
-
-
-    const fetchNFTs = (e) => {
-        e.preventDefault();
-
-        //Note, we are not mentioning update_authority here for now
-        let nftUrl = `https://api.shyft.to/sol/v1/nft/read_all?network=${network}&address=${wallID}`;
-        axios({
-            // Endpoint to send files
-            url: nftUrl,
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": xKey,
-            },
-            // Attaching the form data
-        })
-            // Handle the response from backend here
-            .then((res) => {
-                console.log(res.data);
-                setDataFetched(res.data);
-                setLoaded(true);
-            })
-
             // Catch errors if any
             .catch((err) => {
                 console.warn(err);
             });
-    };
-
-
+    }
     return (
 
         <div className=" gradient-background">
