@@ -173,12 +173,6 @@ const Shop = () => {
                             </div>
                         </form>
                         <div className="text-center pb-5">
-                        <button
-                            className="button-25"
-                            onClick={getNFTsFromMarketPlace}
-                        >
-                            Get NFTs From MarketPlace
-                        </button>
                         </div>
                     </div>
                 </div>)}
