@@ -1,0 +1,243 @@
+body {
+    margin: 0px;
+    padding-top: 15px;
+}
+.container {
+    padding: 0px;
+}
+
+.nav-header {
+    background: linear-gradient(101.81deg, rgb(240, 135, 255) -4.52%, rgb(110, 31, 206) 54.5%, rgba(110, 31, 206, 0.2) 101.41%); 
+    color: #fff; 
+    padding: 10px; 
+    position: fixed; 
+    width: 100%; 
+    top: 0; 
+    left: 0; 
+    
+  }
+  
+  .canv-toggle{
+    font-size: 30px;
+  }
+  .nav-header ul {
+    list-style: none;
+    padding: 5px;
+    margin: 0;
+  }
+  
+  .nav-header li {
+    margin-right: 20px;
+  }
+  
+  .nav-header li:last-child {
+    margin-right: 0;
+  }
+  
+  .nav-header a {
+    color: #fff; /* Màu chữ cho các liên kết */
+    text-decoration: none; /* Loại bỏ gạch chân mặc định */
+
+  }
+  
+  .nav-header a:hover {
+    color: #fff; 
+    text-decoration: none; /* Gạch chân khi hover */
+  }
+
+  .input-with-icon {
+    top: 20%;
+    position: relative;
+    float: right;
+  }
+  
+  .input-with-icon input {
+    border: 1px solid #fff;
+    border-radius: 5px;
+    border: none;
+    padding-left: 5px;
+    padding-right: 30px; /* Để không bị che phủ bởi biểu tượng */
+  }
+  
+  .input-with-icon i {
+    position: absolute;
+    top: 50%;
+    left: 195px;
+    color: black;
+    transform: translateY(-50%);
+  }
+  .input-with-icon input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+  }
+
+  /* off-canvas */
+  .canv-toggle {
+    text-align: left;
+    padding-top: 5px;
+  }
+  
+  .toggle-button {
+    display: block;
+    padding: 0px;
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .toggle-button:hover {
+    color: #007bff;
+  }
+  
+  .offcanvas-container {
+    background: linear-gradient(270deg, rgb(171, 102, 255) 0%, rgb(20, 241, 149) 101.39%);
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    transition: left 0.3s;
+  }
+  
+  .offcanvas-header {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .offcanvas-title {
+    margin: 0;
+  }
+  
+  .offcanvas-body {
+    padding: 10px;
+  }
+  
+  .sub-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sub-menu li {
+    padding: 0; 
+  }
+  
+  .sub-menu a {
+    color: #333;
+    text-decoration: none;
+    font-size: 20px;
+  }
+  
+  .sub-menu a:hover {
+    color: #007bff;
+  }
+  
+  .show {
+    left: 0;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    top: -15px;
+    right: 10px;
+    color: #333;
+    font-size: 50px;
+  }
+  
+  .content-container {
+    padding-top: 100px;
+  }
+.content{
+  padding-top: 100px;
+}
+  .product-img {
+    width: 100%;
+    height: auto;
+  }
+
+  .product-infomation {
+    text-align: center;
+  }
+
+  .product-infomation a{
+    color: #000;
+    text-decoration: none;
+  }
+
+  .product-infomation a:hover{
+    text-decoration: none;
+    color: #007bff;
+  }
+
+  .signle-product {
+    margin: 10px 0px;
+  }
+
+  
+  .user-menu ul {
+    list-style: none;
+    padding-top: 10px;
+    margin: 0 15px;
+    float: right;
+    display: flex; /* Hiển thị các thẻ li nằm ngang */
+  }
+  
+  .user-menu li {
+    margin-right: 20px; /* Khoảng cách giữa các thẻ li */
+  }
+  
+  .user-menu a {
+    color: #333; /* Màu chữ cho các thẻ a */
+    text-decoration: none; /* Loại bỏ gạch chân mặc định */
+    display: inline-block; /* Để thẻ a có thể nhận được margin và padding */
+  }
+  
+  .user-menu a i {
+    font-size: 24px; /* Cỡ biểu tượng */
+  }
+
+  .user-menu a:hover {
+    color: #007bff;
+  }
+.dropdown-menu{
+    padding: 0;
+}
+/* Định dạng cho các dropdown item */
+.dropdown-menu .dropdown-item {
+    color: #333; /* Màu chữ */
+    padding-bottom: 10px; /* Khoảng cách padding */
+    text-decoration: none; /* Loại bỏ gạch chân mặc định */
+    transition: background-color 0.3s, border-radius 0.3s; /* Thêm transition cho border-radius */
+    border-radius: 4px; /* Góc bo tròn mặc định */
+  }
+  
+  .dropdown-menu .dropdown-item:hover {
+    background-color: #f2f2f2; /* Màu nền hover */
+    color: #007bff; /* Màu chữ hover */
+    border-radius: 4px; /* Góc bo tròn khi hover */
+  }
+  
+  .dropdown:hover .dropdown-menu {
+    margin-top: 5px;
+    display: block;
+  }
+
+  .menu-nav {
+    padding-top: 5px;
+  }
+  
+  
+  
+  
+  
+  
+  
