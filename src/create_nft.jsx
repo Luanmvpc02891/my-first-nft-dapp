@@ -8,6 +8,8 @@ import 'jquery/dist/jquery.min.js';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import disPic from './assets/images/upload-file.jpg';
 import 'boxicons/css/boxicons.min.css'; // Import CSS file
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 
 const xApiKey = "lEHeaJLm_TKtI1bU"; //Enter Your x-api-key here
 const Create = () => {
@@ -31,17 +33,51 @@ const Create = () => {
   const [status, setStatus] = useState("Awaiting Upload");
   const [dispResponse, setDispResp] = useState("");
 
-  const [connStatus, setConnStatus] = useState(true);
+  const [connStatus, setConnStatus] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+
 
   const callback = (signature, result) => {
     console.log("Signature ", signature);
     console.log("result ", result);
     if (signature.err === null) {
       setMinted(saveMinted);
-      setStatus("success: Successfully Signed and Minted.");
+      setShowSuccessMessage(true); // Hiển thị thông báo thành công
+      setStatus("Success: Successfully Signed and Minted.");
     }
   }
 
+  const solanaConnect = async () => {
+    console.log('clicked solana connect');
+    const { solana } = window;
+    if (!solana) {
+      alert("Please Install Solana");
+    }
+
+    try {
+      //const network = "devnet";
+      const phantom = new PhantomWalletAdapter();
+      await phantom.connect();
+      const rpcUrl = clusterApiUrl(network);
+      const connection = new Connection(rpcUrl, "confirmed");
+      const wallet = {
+        address: phantom.publicKey.toString(),
+      };
+
+      if (wallet.address) {
+        console.log(wallet.address);
+        setPublicKey(wallet.address);
+        const accountInfo = await connection.getAccountInfo(new PublicKey(wallet.address), "confirmed");
+        console.log(accountInfo);
+        setConnStatus(true);
+      }
+    }
+    catch (err) {
+      console.log(err);
+    }
+
+  }
   const mintNow = (e) => {
     e.preventDefault();
     setStatus("Loading");
@@ -95,66 +131,68 @@ const Create = () => {
 
   return (
     <div className=" gradient-background">
-          <nav className="navbar bg-light fixed-top">
-                <div className="container-fluid">
-                    <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas"
-                        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="offcanvas offcanvas-start" tabIndex="-1" id="offcanvasNavbar"
-                        aria-labelledby="offcanvasNavbarLabel">
-                        <div className="offcanvas-header">
-                            <h5 className="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="offcanvas"
-                                aria-label="Close"></button>
-                        </div>
-                        <div className="offcanvas-body">
-                            <ul className="navbar-nav">
-                                <li className="nav-item">
-                                    <a className="button-25 mb-3 nav-link active" aria-current="page" href="/">Marketplace</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="button-25 nav-link" href="/create">Create NFT</a>
-                                </li>
-                            </ul>
-                            <form className="d-flex mt-3" role="search">
-                                <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-                                <button className="btn btn-outline-success" type="submit">Search</button>
-                            </form>
+      <nav className="navbar bg-light fixed-top p-3 ">
+        <div className="container-fluid">
+          <button className="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="offcanvas offcanvas-start" tabIndex="-1" id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel">
+            <div className="offcanvas-header">
+              <h5 className="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+            </div>
+            <div className="offcanvas-body">
+              <ul className="navbar-nav">
+                <li className="nav-item">
+                  <a className="button-25 mb-3 nav-link " aria-current="page" href="/">Marketplace</a>
+                </li>
+                <li className="nav-item">
+                  <a className="button-25 mb-3 nav-link active" href="/create">Create NFT</a>
+                </li>
+                <li className="nav-item">
+                  <a className="button-25 nav-link" href="/myNFT">My NFT</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="d-flex justify-content-end mt-3">
 
-                        </div>
-                    </div>
-                    <div className="d-flex justify-content-end mt-3">
-
-                        <a><i className='bx bxs-user'></i></a>
-                        <a><i className='bx bx-cart'></i></a>
-
-                        <ul className=" custom-dropdown" >
-                            <li className="nav-item dropdown">
-                                <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    Dropdown
-                                </a>
-                                <ul className="dropdown-menu">
-                                    <li><a className="dropdown-item" href="#">Action</a></li>
-                                    <li><a className="dropdown-item" href="#">Another action</a></li>
-                                    <li>
-                                        <hr className="dropdown-divider" />
-                                    </li>
-                                    <li><a className="dropdown-item" href="#">Something else here</a></li>
-                                </ul>
-                            </li></ul>
-
-                    </div>
-                </div>
-            </nav>
+          </div>
+        </div>
+      </nav>
       <div className="mint-single rounded py-3 px-5">
+
+        {!connStatus && (<div className="">
+          <div className="text-center pt-4">
+            <h1 className="">Connect Your Wallet</h1>
+            <p className="">You need to connect your wallet to deploy and interact with your contracts.</p>
+            <button className="button-25 custom-heading" onClick={solanaConnect}>Connect Phantom Wallet</button>
+          </div>
+        </div>)}
+
         {connStatus && (<div className="form-container ">
           <h1 className="text-center pt-4 custom-heading">CREATE  NFT</h1>
           <label className="text-center col-md-12">
             This Sample Project Illustrates how to create new NFTs using SHYFT
             APIs.
           </label>
+          {showSuccessMessage && (
+            <div className="py-5 white-form-group pt-3">
+              <div className="status text-center text-warning p-3"><h3 className="custom-status">{status}</h3>
+              </div>
+              {/* <textarea
+          className="form-control"
+          name=""
+          value={JSON.stringify(dispResponse)}
+          id=""
+          cols="30"
+          rows="2"
+        ></textarea> */}
+            </div>
+          )}
           <form className=" pt-5" >
             <div className="row">
               <div className="col-sm-12 col-md-5">
@@ -182,20 +220,19 @@ const Create = () => {
                       objectFit: "contain",
                     }}
                   />
-                  
+
                 </div>
-              <div className="text-center">
-              <br /><input type="button" value={"Select Image"} className="button-25 text-center text-light pr rounded-pill" />
-              </div>
-                <input
-                  type="file"
-                  style={{ position: "absolute", zIndex: "3", marginTop: "-50px", marginLeft: "-70px", width: "150px", height: "40px", opacity: "0" }}
-                  onChange={(e) => {
-                    const [file_selected] = e.target.files;
-                    setfile(e.target.files[0]);
-                    setDisplayPic(URL.createObjectURL(file_selected));
-                  }}
-                />
+                <div className="text-center">
+                  <br />
+                  <input className="hele"
+                    type="file"
+                    onChange={(e) => {
+                      const [file_selected] = e.target.files;
+                      setfile(e.target.files[0]);
+                      setDisplayPic(URL.createObjectURL(file_selected));
+                    }}
+                  />
+                </div>
                 <div className="mb-3"></div>
               </div>
               <div className="col-sm-12 col-md-7">
@@ -216,7 +253,7 @@ const Create = () => {
                     <div className="white-form-group pt-3 ">
                       <label className="w-100 pb-2 text-start">
                         Public Key:<br /> </label>
-                      <input type="text" className="form-control" placeholder="Enter Your Wallet's Public Key" value={publicKey} onChange={(e) => setPublicKey(e.target.value)} required />
+                      <input type="text" className="form-control" placeholder="Enter Your Wallet's Public Key" value={publicKey} onChange={(e) => setPublicKey(e.target.value)} readOnly required />
                     </div>
                     <div className="white-form-group pt-3 ">
                       <label className="w-100 pb-2 text-start">Name:<br /> </label>
@@ -235,10 +272,10 @@ const Create = () => {
                       <textarea className="form-control" placeholder="Enter Description" value={desc} onChange={(e) => setDesc(e.target.value)} required></textarea>
                     </div>
                     <div className="white-form-group pt-3 ">
-                      <label className="w-100 pb-2 text-start">
+                      {/* <label className="w-100 pb-2 text-start">
                         Attributes: <br />
-                      </label>
-                      <textarea className="form-control" placeholder="Enter Attributes" value={attr} onChange={(e) => setAttr(e.target.value)} required></textarea>
+                      </label> */}
+                      <textarea className="form-control" hidden placeholder="Enter Attributes" value={attr} onChange={(e) => setAttr(e.target.value)} required></textarea>
                     </div>
                     <div className="white-form-group pt-3 ">
                       <label className="w-100 pb-2 text-start">
@@ -259,20 +296,6 @@ const Create = () => {
             This creates one of kind NFTs by setting the <code>max_supply</code> parameter to 0. But you can update it needed, it should be between <i>0-100</i>.
           </label>
         </div>)}
-
-        <div className="py-5 white-form-group pt-3">
-          <h2 className="text-center pb-3">Response</h2>
-          <div className="status text-center text-warning p-3"><h3 className="custom-status">{status}</h3>
-          </div>
-          <textarea
-            className="form-control"
-            name=""
-            value={JSON.stringify(dispResponse)}
-            id=""
-            cols="30"
-            rows="2"
-          ></textarea>
-        </div>
         <div className="p-3 text-center">
           {dispResponse && (<a href={`https://explorer.solana.com/address/${minted}?cluster=devnet`} target="_blank" className="btn btn-warning m-2 py-2 px-4">View on Explorer</a>)}
         </div>
