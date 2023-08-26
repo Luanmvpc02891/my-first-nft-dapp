@@ -23,12 +23,12 @@ const Nft = () => {
     const [connStatus, setConnStatus] = useState(false);
     const [buy, setBuy] = useState();
     const [nfts, setNfts] = useState();
-
+    const [loading, setLoading] = useState(false);
     const callback = (signature, result) => {
         console.log("Signature ", signature);
         console.log("result ", result);
         if (signature.err === null) {
-            setMinted(saveMinted);
+            //setMinted(saveMinted);
             setStatus("success: Successfully Signed and Minted.");
         }
     }
@@ -39,8 +39,8 @@ const Nft = () => {
         if (!solana) {
             alert("Please Install Solana");
         }
-
         try {
+            setLoading(true);
             //const network = "devnet";
             const phantom = new PhantomWalletAdapter();
             await phantom.connect();
@@ -57,11 +57,12 @@ const Nft = () => {
                 console.log(accountInfo);
                 setConnStatus(true);
                 getNFTsFromMarketPlace(isLoadedMarketPlaceNFTs);
-
             }
+            setLoading(false);
         }
         catch (err) {
             console.log(err);
+            setLoading(false);
         }
 
     }
@@ -117,6 +118,7 @@ const Nft = () => {
             .then((res) => {
                 console.log(res.data);
                 setDataFetched(res.data);
+                setLoaded(true);
             })
 
             // Catch errors if any
@@ -125,85 +127,104 @@ const Nft = () => {
             });
     };
 
-    const listNFT = (nft_addr, inputPrice) => {
-
-
+    const listNFT = async (nft_addr, inputPrice) => {
         let nftUrl1 = `https://api.shyft.to/sol/v1/marketplace/list`;
 
-        axios({
-            // Endpoint to list
-            url: nftUrl1,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": xKey,
-            },
-            data: {
-                network: 'devnet',
-                marketplace_address: "3y4rUzcCRZH4TstRJGYmUUKuod8hd4Rvu2Fnf2FhQoY4",
-                nft_address: nft_addr,
-                price: Number(inputPrice),
-                seller_wallet: wallID
-            }
-        })
-            // Handle the response from backend here
-            .then(async (res) => {
-                console.log(res.data);
-                //setIsListing(false);
-                if (res.data.success === true) {
-                    //setOkModal(true);
-
-                    const transaction = res.data.result.encoded_transaction;
-                    const ret_result = await signAndConfirmTransactionFe('devnet', transaction, callback);
-                    console.log(ret_result);
-                    //setListingPrice(0);
-                } else {
-                    //setFailedModal(true);
-                    //setShowLister(false);
+        try {
+            setLoading(true);
+            const response = await axios({
+                url: nftUrl1,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": xKey,
+                },
+                data: {
+                    network: 'devnet',
+                    marketplace_address: "3y4rUzcCRZH4TstRJGYmUUKuod8hd4Rvu2Fnf2FhQoY4",
+                    nft_address: nft_addr,
+                    price: Number(inputPrice),
+                    seller_wallet: wallID
                 }
-
-            })
-            // Catch errors if any
-            .catch((err) => {
-                console.error(err); // In ra lỗi để xem chi tiết về lỗi
             });
-    }
-    const UnlistNFT = (listState) => {
 
+            if (response.data.success === true) {
+                const transaction = response.data.result.encoded_transaction;
+                const ret_result = await signAndConfirmTransactionFe(
+                    'devnet',
+                    transaction,
+                    callback
+                );
+                await fetchNFTs(); // Reload NFTs after successful listing
+                console.log(ret_result);
+
+                // Update the state to reflect the change
+                setNfts((prevNfts) => ({
+                    ...prevNfts,
+                    result: [
+                        ...prevNfts.result,
+                        {
+                            nft_address: nft_addr,
+                            list_state: ret_result.list_state
+                        }
+                    ]
+                }));
+            } else {
+                // Handle listing error
+            }
+            setLoading(false);
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
+        }
+    };
+    const UnlistNFT = async (listState) => {
         let nftUrl = `https://api.shyft.to/sol/v1/marketplace/unlist`;
 
-        axios({
-            url: nftUrl,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": xKey,
-            },
-            data: {
-                network: 'devnet',
-                marketplace_address: "3y4rUzcCRZH4TstRJGYmUUKuod8hd4Rvu2Fnf2FhQoY4",
-                list_state: listState,
-                seller_wallet: wallID,
-                fee_payer: wallID
-            }
-        })
-            .then(async (res) => {
-                console.log(res.data);
-                if (res.data.success === true) {
-
-                    const transaction = res.data.result.encoded_transaction;
-                    const ret_result = await signAndConfirmTransactionFe('devnet', transaction, callback);
-                    console.log(ret_result);
-                   
-                } else {
+        try {
+            setLoading(true);
+            const response = await axios({
+                url: nftUrl,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": xKey,
+                },
+                data: {
+                    network: 'devnet',
+                    marketplace_address: "3y4rUzcCRZH4TstRJGYmUUKuod8hd4Rvu2Fnf2FhQoY4",
+                    list_state: listState,
+                    seller_wallet: wallID,
+                    fee_payer: wallID
                 }
-
-            })
-            // Catch errors if any
-            .catch((err) => {
-                console.error(err); // In ra lỗi để xem chi tiết về lỗi
             });
-    }
+
+            if (response.data.success === true) {
+                const transaction = response.data.result.encoded_transaction;
+                const ret_result = await signAndConfirmTransactionFe(
+                    'devnet',
+                    transaction,
+                    callback
+                );
+                await fetchNFTs(); // Reload NFTs after successful unlisting
+                console.log(ret_result);
+
+                // Update the state to reflect the change
+                setNfts((prevNfts) => ({
+                    ...prevNfts,
+                    result: prevNfts.result.filter(
+                        (nft) => nft.list_state !== listState
+                    )
+                }));
+            } else {
+                // Handle unlisting error
+            }
+            setLoading(false);
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
+        }
+    };
 
     return (
 
@@ -248,9 +269,15 @@ const Nft = () => {
                         <button className="button-25 custom-heading" onClick={solanaConnect}>Connect Phantom Wallet</button>
                     </div>
                 </div>)}
-
-
-
+                <div className="gradient-background">
+                    {/* ... (other JSX content) */}
+                    {loading && (
+                        <div className="loading-overlay">
+                            <div className="spinner"></div>
+                        </div>
+                    )}
+                </div>
+                
                 {connStatus && (<div className="">
                     <div className="">
                         <form>
@@ -291,28 +318,30 @@ const Nft = () => {
                                         </a>
                                         <div className="buy-overlay position-absolute top-0 start-0 d-flex justify-content-center align-items-center">
                                             {nfts.result.some(nft => nft.nft_address === item.mint) ? (
-                                                <button className="button-24 buy-button" onClick={() => UnlistNFT(nfts.result.find(nft => nft.nft_address === item.mint).list_state)}>UnList</button>
-                                            ) : (                   
-                                                <button className="button-24 buy-button"  onClick={() => listNFT(item.mint, price)}>List</button>
+                                                <div>
+                                                    <button className="button-24 buy-button" onClick={() => UnlistNFT(nfts.result.find(nft => nft.nft_address === item.mint).list_state)}>Unlist</button>
+                                                    {/* Không hiển thị thẻ input */}
+                                                </div>
+                                            ) : (
+                                                <div className="text-center">
+                                                    <button className="button-24 buy-button" onClick={() => listNFT(item.mint, price)}>List</button>
+                                                    <input
+                                                        type="number"
+                                                        value={price}
+                                                        onChange={(e) => setPrice(e.target.value)}
+                                                        className="custom-input" required
+                                                    />
+                                                </div>
                                             )}
                                         </div>
-                                       
                                     </div>
                                 </div>
-                                <div className="col-lg-12 text-center mt-2">
-                                    <a href={`/get-details?token_address=${item.mint}&apiKey=${xKey}`} target="_blank" rel="noreferrer">
+                                <div className="col-lg-12 text-center mt-2 d-flex align-items-center justify-content-center">
+                                    <a href={`/get-details?token_address=${item.mint}&apiKey=${xKey}`} target="_blank" rel="noreferrer" className="mr-2 link-no-underline">
                                         <h5>{item.name}</h5>
-                                        <input
-                                            type="number"
-                                            value={price}
-                                            onChange={(e) => setPrice(e.target.value)} // Cập nhật trạng thái giá khi người dùng thay đổi input
-                                        />
                                     </a>
                                 </div>
-
                             </div>
-
-
                         ))}
                 </div>
             </div>

@@ -24,7 +24,7 @@ const Shop = () => {
     const [connStatus, setConnStatus] = useState(false);
     const [buy, setBuy] = useState();
     const [nfts, setNfts] = useState();
-
+    const [loading, setLoading] = useState(false);
 
     // Phantom Adaptor
     const solanaConnect = async () => {
@@ -35,6 +35,7 @@ const Shop = () => {
         }
 
         try {
+            setLoading(true);
             //const network = "devnet";
             const phantom = new PhantomWalletAdapter();
             await phantom.connect();
@@ -52,9 +53,11 @@ const Shop = () => {
                 setConnStatus(true);
                 getNFTsFromMarketPlace(isLoadedMarketPlaceNFTs);
             }
+            setLoading(false);
         }
         catch (err) {
             console.log(err);
+            setLoading(false);
         }
 
     }
@@ -92,8 +95,83 @@ const Shop = () => {
                 console.warn(err);
             });
     }
-
-   
+    const callback = (signature, result) => {
+        console.log("Signature ", signature);
+        console.log("result ", result);
+        if (signature.err === null) {
+            setMinted(saveMinted);
+            setStatus("success: Successfully Signed and Minted.");
+        }
+    }
+    const buyNow = (nftAddr,price, sellerAddress) => {
+        
+        //e.preventDefault();
+        let nftUrl = `https://api.shyft.to/sol/v1/marketplace/buy`;
+        setLoading(true);
+        axios({
+                url: nftUrl,
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "x-api-key": xKey,
+                },
+                data: {
+                    network:'devnet',
+                    marketplace_address: '3y4rUzcCRZH4TstRJGYmUUKuod8hd4Rvu2Fnf2FhQoY4',
+                    nft_address: nftAddr,
+                    price: Number(price),
+                    seller_address: sellerAddress,
+                    buyer_wallet: wallID
+                }
+              })
+                // Handle the response from backend here
+                .then(async (res) => {
+                    if (res.data.success === true) {
+                        //setOkModal(true);
+    
+                        const transaction = res.data.result.encoded_transaction;
+                        const ret_result = await signAndConfirmTransactionFe('devnet', transaction, callback);
+                        console.log(ret_result);
+                        //setListingPrice(0);
+                    } else {
+                        //setFailedModal(true);
+                        //setShowLister(false);
+                    }
+                    setLoading(false);
+                })
+                // Catch errors if any
+                .catch((err) => {
+                  console.warn(err);
+                  setLoading(false);
+                });
+      }
+      const findOwner = (seller_address) => {
+        //e.preventDefault();
+        
+                //Note, we are not mentioning update_authority here for now
+                let nftUrl = `https://api.shyft.to/sol/v1/nft/read_all?network=${network}&address=${seller_address}`;
+                axios({
+                    // Endpoint to send files
+                    url: nftUrl,
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": xKey,
+                    },
+                    // Attaching the form data
+                })
+                    // Handle the response from backend here
+                    .then((res) => {
+                        console.log(res.data);
+                        setDataFetched(res.data);
+                        setLoaded(true);
+                    })
+        
+                    // Catch errors if any
+                    .catch((err) => {
+                        console.warn(err);
+                    });
+              }
 
     return (
 
@@ -141,7 +219,14 @@ const Shop = () => {
                     </div>
                 </div>)}
 
-
+                <div className="gradient-background">
+                    {/* ... (other JSX content) */}
+                    {loading && (
+                        <div className="loading-overlay">
+                            <div className="spinner"></div>
+                        </div>
+                    )}
+                </div>
 
                 {connStatus && (<div className="">
                     <div className="">
@@ -178,7 +263,8 @@ const Shop = () => {
 
 
                                     <div className="buy-overlay position-absolute top-0 start-0 d-flex justify-content-center align-items-center">
-                                        <button className="button-24 buy-button">Buy</button>
+                                        <button className="button-24 buy-button" onClick={() =>buyNow(item.nft_address, item.price, item.seller_address)}>Buy</button>
+                                        {/* <button className="button-24 buy-button" onClick={() =>findOwner(item.seller_address)}>Owner</button> */}
                                     </div>
                                 </div>
                                 <div className="col-lg-12 text-center mt-2">

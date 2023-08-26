@@ -35,6 +35,7 @@ const Create = () => {
 
   const [connStatus, setConnStatus] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
 
 
 
@@ -44,6 +45,7 @@ const Create = () => {
     if (signature.err === null) {
       setMinted(saveMinted);
       setShowSuccessMessage(true); // Hiển thị thông báo thành công
+       setLoading(false);
       setStatus("Success: Successfully Signed and Minted.");
     }
   }
@@ -56,6 +58,7 @@ const Create = () => {
     }
 
     try {
+      setLoading(true);
       //const network = "devnet";
       const phantom = new PhantomWalletAdapter();
       await phantom.connect();
@@ -72,15 +75,18 @@ const Create = () => {
         console.log(accountInfo);
         setConnStatus(true);
       }
+      setLoading(false);
     }
     catch (err) {
       console.log(err);
+      setLoading(false);
     }
 
   }
   const mintNow = (e) => {
     e.preventDefault();
     setStatus("Loading");
+    setLoading(true);
     let formData = new FormData();
     formData.append("network", network);
     formData.append("wallet", publicKey);
@@ -106,24 +112,28 @@ const Create = () => {
 
       // Attaching the form data
       data: formData,
+      
     })
       // Handle the response from backend here
       .then(async (res) => {
         console.log(res);
         if (res.data.success === true) {
-          setStatus("success: Transaction Created. Signing Transactions. Please Wait.");
           const transaction = res.data.result.encoded_transaction;
           setSaveMinted(res.data.result.mint);
           const ret_result = await signAndConfirmTransactionFe(network, transaction, callback);
           console.log(ret_result);
           setDispResp(res.data);
+          setStatus("success: Transaction Created. Signing Transactions. Please Wait.");
 
         }
+        
+        setLoading(true);
       })
 
       // Catch errors if any
       .catch((err) => {
         console.warn(err);
+        setLoading(false);
         setStatus("success: false");
       });
 
@@ -164,7 +174,14 @@ const Create = () => {
         </div>
       </nav>
       <div className="mint-single rounded py-3 px-5">
-
+      <div className="gradient-background">
+            {/* ... (other JSX content) */}
+            {loading && (
+              <div className="loading-overlay">
+                <div className="spinner"></div>
+              </div>
+            )}
+          </div>
         {!connStatus && (<div className="">
           <div className="text-center pt-4">
             <h1 className="">Connect Your Wallet</h1>
