@@ -249,7 +249,10 @@ const Shop = () => {
                                     <a className="button-25 mb-3 nav-link" href="/create">Create NFT</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="button-25 nav-link" href="/myNFT">My NFT</a>
+                                    <a className="button-25 mb-3 nav-link" href="/myNFT">My NFT</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className="button-25 nav-link " href="/list">History</a>
                                 </li>
                             </ul>
                            
@@ -343,12 +346,7 @@ const Shop = () => {
                 </div>
                 </div>)}
 
-                <div className="row">
-                    
-                    <div>
-                        <h3>Market Place</h3>
-                    </div>
-                    
+                <div className="row">    
                     {isLoadedMarketPlaceNFTs &&
                         nfts.result.map((item) => (
                             <div className="col-6 col-xs-6 col-sm-6 col-md-6 col-lg-4 col-xl-3 port-cust-padding" key={item.nft_address}>
@@ -371,8 +369,8 @@ const Shop = () => {
                                        </div>
                                         ):(
                                             <div className="buy-overlay position-absolute top-0 start-0 d-flex justify-content-center align-items-center">
-                                            <button className="button-24 buy-button" onClick={() =>buyNow(item.nft_address, item.price, item.seller_address)}>Buy</button>
-                                            <button className="button-15 buy-button" onClick={() =>findOwner(item.seller_address)}>Owner</button>
+                                            <button className="button-24 buy-button m-2" onClick={() =>buyNow(item.nft_address, item.price, item.seller_address)}>Buy</button>
+                                            <button className="button-24 buy-button" onClick={() =>findOwner(item.seller_address)}>Owner</button>
                                             </div>
                                         )}
                                 </div>

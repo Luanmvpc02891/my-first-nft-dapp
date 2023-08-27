@@ -251,7 +251,10 @@ const Nft = () => {
                                     <a className="button-25 mb-3 nav-link" href="/create">Create NFT</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="button-25 nav-link active" href="/myNFT">My NFT</a>
+                                    <a className="button-25  mb-3 nav-link active" href="/myNFT">My NFT</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className="button-25 nav-link " href="/list">History</a>
                                 </li>
                             </ul>
                         </div>

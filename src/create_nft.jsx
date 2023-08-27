@@ -45,7 +45,7 @@ const Create = () => {
     if (signature.err === null) {
       setMinted(saveMinted);
       setShowSuccessMessage(true); // Hiển thị thông báo thành công
-       setLoading(false);
+      setLoading(false);
       setStatus("Success: Successfully Signed and Minted.");
     }
   }
@@ -112,7 +112,7 @@ const Create = () => {
 
       // Attaching the form data
       data: formData,
-      
+
     })
       // Handle the response from backend here
       .then(async (res) => {
@@ -126,7 +126,7 @@ const Create = () => {
           setStatus("success: Transaction Created. Signing Transactions. Please Wait.");
 
         }
-        
+
         setLoading(true);
       })
 
@@ -163,7 +163,10 @@ const Create = () => {
                   <a className="button-25 mb-3 nav-link active" href="/create">Create NFT</a>
                 </li>
                 <li className="nav-item">
-                  <a className="button-25 nav-link" href="/myNFT">My NFT</a>
+                  <a className="button-25  mb-3 nav-link" href="/myNFT">My NFT</a>
+                </li>
+                <li className="nav-item">
+                  <a className="button-25 nav-link " href="/myNFT">History</a>
                 </li>
               </ul>
             </div>
@@ -174,14 +177,14 @@ const Create = () => {
         </div>
       </nav>
       <div className="mint-single rounded py-3 px-5">
-      <div className="gradient-background">
-            {/* ... (other JSX content) */}
-            {loading && (
-              <div className="loading-overlay">
-                <div className="spinner"></div>
-              </div>
-            )}
-          </div>
+        <div className="gradient-background">
+          {/* ... (other JSX content) */}
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
+        </div>
         {!connStatus && (<div className="">
           <div className="text-center pt-4">
             <h1 className="">Connect Your Wallet</h1>

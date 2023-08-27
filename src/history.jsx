@@ -91,7 +91,7 @@ const ListAll = () => {
 
     }
 
-
+   
 
     return (
         <div className="container">
@@ -117,10 +117,10 @@ const ListAll = () => {
                                     <a className="button-25 mb-3 nav-link" href="/create">Create NFT</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="button-25  mb-3 nav-link " href="/myNFT">My NFT</a>
+                                    <a className="button-25 mb-3 nav-link " href="/myNFT">My NFT</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="button-25 nav-link active " href="/list">History</a>
+                                    <a className="button-25 nav-link active" href="/list">History</a>
                                 </li>
                             </ul>
                         </div>
@@ -131,7 +131,7 @@ const ListAll = () => {
                 </div>
             </nav>
             <div className="">
-                <div className=" text-center pt-5">
+                <div className="">
                     <h1>List All Your NFTs</h1>
                     <p>
                         This is a sample project which will list all your NFTs associated
@@ -141,36 +141,54 @@ const ListAll = () => {
             </div>
 
             <div className="">
-            {!connStatus && (<div className="">
-                    <div className="text-center pt-4">
-                        <h1 className="">Connect Your Wallet</h1>
+                {!connStatus && (<div className="">
+                    <div className="">
+                        <h2 className="custom-h2">Connect Your Wallet</h2>
                         <p className="">You need to connect your wallet to deploy and interact with your contracts.</p>
-                        <button className="button-25 custom-heading" onClick={solanaConnect}>Connect Phantom Wallet</button>
+                        <button className="" onClick={solanaConnect}>Connect Phantom Wallet</button>
+                        {/* <select className="form-select" onChange={(e) => {
+          console.log(e.target.value);
+          (e.target.value === 'mtmsk') ? mtmskConnect() : solanaConnect();
+        }}>
+          <option value="none">Connect</option>
+          <option value="phntm">Phantom</option>
+        </select> */}
                     </div>
                 </div>)}
                 {connStatus && (<div className="">
                     <div className="">
                         <form>
-                            <div className="container">
-                                <div className="col-sm-1">
+                            <div className="">
+
+                                <div className="">
+                                    <select
+                                        name="network"
+                                        className="form-control form-select"
+                                        id=""
+                                        onChange={(e) => setNetwork(e.target.value)}
+                                    >
+                                        <option value="devnet">Devnet</option>
+                                        <option value="testnet">Testnet</option>
+                                        <option value="mainnet-beta">Mainnet Beta</option>
+                                    </select>
+                                </div>
+                                <div className="">
                                     <input
-                                        type="hidden"
+                                        type="text"
                                         className="form-control"
                                         placeholder="Enter Wallet Id"
                                         value={wallID}
                                         onChange={(e) => setWallID(e.target.value)}  // Add this line
                                     />
                                 </div>
-                            </div>
+                            </div>                   
                         </form>
-                        <div className="text-center p-3">
-                            <button
-                                className="button-25"
-                                onClick={getYourBuyHistory}
-                            >
-                                Get your buy history
-                            </button>
-                        </div>
+                        <button
+                            className="btn btn-primary"
+                            onClick={getYourBuyHistory}
+                        >
+                            Get your buy history
+                        </button>
                     </div>
                 </div>)}
             </div>
