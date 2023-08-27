@@ -25,6 +25,7 @@ const Shop = () => {
     const [buy, setBuy] = useState();
     const [nfts, setNfts] = useState();
     const [loading, setLoading] = useState(false);
+    const [ownerId, setOwnerId] = useState("");
 
     // Phantom Adaptor
     const solanaConnect = async () => {
@@ -164,6 +165,7 @@ const Shop = () => {
                     .then((res) => {
                         console.log(res.data);
                         setDataFetched(res.data);
+                        setOwnerId(seller_address);
                         setLoaded(true);
                     })
         
@@ -172,6 +174,55 @@ const Shop = () => {
                         console.warn(err);
                     });
               }
+
+              const UnlistNFT = async (listState) => {
+                let nftUrl = `https://api.shyft.to/sol/v1/marketplace/unlist`;
+        
+                try {
+                    setLoading(true);
+                    const response = await axios({
+                        url: nftUrl,
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "x-api-key": xKey,
+                        },
+                        data: {
+                            network: 'devnet',
+                            marketplace_address: "3y4rUzcCRZH4TstRJGYmUUKuod8hd4Rvu2Fnf2FhQoY4",
+                            list_state: listState,
+                            seller_wallet: wallID,
+                            fee_payer: wallID
+                        }
+                    });
+        
+                    if (response.data.success === true) {
+                        const transaction = response.data.result.encoded_transaction;
+                        const ret_result = await signAndConfirmTransactionFe(
+                            'devnet',
+                            transaction,
+                            callback
+                        );
+
+                        await fetchNFTs(); // Reload NFTs after successful unlisting
+                        console.log(ret_result);
+        
+                        // Update the state to reflect the change
+                        setNfts((prevNfts) => ({
+                            ...prevNfts,
+                            result: prevNfts.result.filter(
+                                (nft) => nft.list_state !== listState
+                            )
+                        }));
+                    } else {
+                        // Handle unlisting error
+                    }
+                    setLoading(false);
+                } catch (error) {
+                    console.error(error);
+                    setLoading(false);
+                }
+            };
 
     return (
 
@@ -244,13 +295,65 @@ const Shop = () => {
                             </div>
                         </form>
                     </div>
+                    <div className="row">
+                    
+                        <div>
+                            <h3>Market Place : {ownerId}</h3>
+                        </div>
+                   
+                        
+                    
+                    {isLoaded &&
+                        dataFetched.result.map((item) => (
+                            
+                            <div className="col-6 col-xs-6 col-sm-6 col-md-6 col-lg-4 col-xl-3 port-cust-padding" key={item.mint}>
+                                
+                                <div className="cards-outer-port position-relative">
+                                
+                                    <div className="inner-box-img-container">
+                                        <a href={`/get-details?token_address=${item.mint}&apiKey=${xKey}`} target="_blank" rel="noreferrer">
+                                            <img
+                                                className="img-fluid"
+                                                src={item.image_uri}
+                                                alt="img"
+                                            />
+                                        </a>
+                                        <div className="buy-overlay position-absolute top-0 start-0 d-flex justify-content-center align-items-center">
+                                            {nfts.result.some(nft => nft.nft_address === item.mint) ? (
+                                                <div>
+                                                    <button className="button-24 buy-button" onClick={() => UnlistNFT(nfts.result.find(nft => nft.nft_address === item.mint).list_state)}>Unlist</button>
+                                                    {/* Không hiển thị thẻ input */}
+                                                </div>
+                                            ) : (
+                                                <div className="text-center">
+                                                    
+                                                    
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-lg-12 text-center mt-2 d-flex align-items-center justify-content-center">
+                                    <a href={`/get-details?token_address=${item.mint}&apiKey=${xKey}`} target="_blank" rel="noreferrer" className="mr-2 link-no-underline">
+                                        <h5>{item.name}</h5>
+                                    </a>
+                                </div>
+                            </div>
+                        ))}
+                </div>
                 </div>)}
 
                 <div className="row">
+                    
+                    <div>
+                        <h3>Market Place</h3>
+                    </div>
+                    
                     {isLoadedMarketPlaceNFTs &&
                         nfts.result.map((item) => (
                             <div className="col-6 col-xs-6 col-sm-6 col-md-6 col-lg-4 col-xl-3 port-cust-padding" key={item.nft_address}>
                                 <div className="cards-outer-port position-relative">
+                                
                                     <div className="inner-box-img-container">
                                         <a href={`/get-details?token_address=${item.nft_address}&apiKey=${xKey}`} target="_blank" rel="noreferrer">
                                             <img
@@ -262,14 +365,20 @@ const Shop = () => {
                                     </div>
 
 
-                                    <div className="buy-overlay position-absolute top-0 start-0 d-flex justify-content-center align-items-center">
-                                        <button className="button-24 buy-button" onClick={() =>buyNow(item.nft_address, item.price, item.seller_address)}>Buy</button>
-                                        {/* <button className="button-24 buy-button" onClick={() =>findOwner(item.seller_address)}>Owner</button> */}
-                                    </div>
+                                    { item.seller_address === wallID ? (
+                                           <div className="buy-overlay position-absolute top-0 start-0 d-flex justify-content-center align-items-center">
+                                           <button className="button-24 buy-button" onClick={() => UnlistNFT(item.list_state)}>Unlist</button>
+                                       </div>
+                                        ):(
+                                            <div className="buy-overlay position-absolute top-0 start-0 d-flex justify-content-center align-items-center">
+                                            <button className="button-24 buy-button" onClick={() =>buyNow(item.nft_address, item.price, item.seller_address)}>Buy</button>
+                                            <button className="button-15 buy-button" onClick={() =>findOwner(item.seller_address)}>Owner</button>
+                                            </div>
+                                        )}
                                 </div>
                                 <div className="col-lg-12 text-center mt-2">
                                     <a
-                                        href={`/get-details?token_address=${item.nft_address}&apiKey=${xKey}`}
+                                        href={`https://solscan.io/token/${item.nft_address}?cluster=devnet#txs`}
                                         target="_blank"
                                         rel="noreferrer"
                                         className="link-no-underline"
